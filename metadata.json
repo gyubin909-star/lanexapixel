@@ -1,0 +1,6 @@
+{
+  "name": "LNXPIXEL",
+  "description": "LNXPIXEL — Studio generasi gambar AI multi-model (Nano Banana 2.1, Seedream 5.5, Kling Image 4.0, Grok Imagine 2.0, GPT Image 2 & 2.6) dengan unggah referensi, aspek rasio adaptif, dan kontrol kualitas hingga 4K.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
