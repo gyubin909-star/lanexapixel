@@ -57,6 +57,20 @@ function extractImagesFromJob(job: UpstreamJobResponse): GeneratedImageEntry[] {
   return [];
 }
 
+async function parseJsonSafely<T>(res: Response): Promise<T> {
+  const raw = await res.text();
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    const trimmed = raw.trim().slice(0, 140);
+    throw new Error(
+      trimmed
+        ? `Server mengembalikan respons non-JSON (HTTP ${res.status}): ${trimmed}`
+        : `Server mengembalikan respons kosong (HTTP ${res.status}).`
+    );
+  }
+}
+
 function createInitialForm(): ModelFormState {
   const defaultModel = getModelConfig('nano-banana-2.1');
   return {
@@ -118,7 +132,7 @@ export default function App() {
     setCreditsLoading(true);
     try {
       const res = await fetch('/api/credits');
-      const data = (await res.json()) as CreditBalanceInfo;
+      const data = await parseJsonSafely<CreditBalanceInfo>(res);
       setCredits(data);
     } catch {
       setCredits({
@@ -246,7 +260,7 @@ export default function App() {
         }),
       });
 
-      const createData = (await createRes.json()) as UpstreamJobResponse;
+      const createData = await parseJsonSafely<UpstreamJobResponse>(createRes);
       if (!createRes.ok) {
         const msg =
           (typeof createData.error === 'string' && createData.error) ||
@@ -276,7 +290,7 @@ export default function App() {
           const pollRes = await fetch(`/api/images/${encodeURIComponent(jobId)}`, {
             signal: controller.signal,
           });
-          const pollData = (await pollRes.json()) as UpstreamJobResponse;
+          const pollData = await parseJsonSafely<UpstreamJobResponse>(pollRes);
 
           if (!pollRes.ok) {
             const pollErr =
