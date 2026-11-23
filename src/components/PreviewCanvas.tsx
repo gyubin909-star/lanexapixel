@@ -12,7 +12,7 @@ import {
   RefreshCw,
   X,
 } from 'lucide-react';
-import { AspectRatioValue, getModelConfig } from '../types/models';
+import { AspectRatioValue } from '../types/models';
 import { GenerationRecord } from '../types/studio';
 import { triggerImageDownload } from '../utils/imageHelpers';
 
@@ -70,7 +70,10 @@ export const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   };
 
   const canAddMoreRefs = referenceCount < maxReferences;
-  const modelMeta = getModelConfig(activeModelId as Parameters<typeof getModelConfig>[0]);
+
+  if (!isGenerating && !errorMessage && (!activeRecord || !activeImage)) {
+    return null;
+  }
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -299,43 +302,6 @@ export const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
           </div>
         )}
 
-        {/* Clean Empty Canvas (no sample images) */}
-        {!isGenerating && !errorMessage && !activeRecord && (
-          <div className="w-full py-12 sm:py-20 px-4 sm:px-8 flex flex-col items-center justify-center text-center border border-dashed border-blue-200/90 bg-white/55">
-            <div className="w-12 h-12 bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center mb-5">
-              <ImageIcon className="w-5 h-5" aria-hidden="true" />
-            </div>
-
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 text-balance">
-              Kanvas Generasi LNXPIXEL
-            </h1>
-            <p className="text-sm text-slate-600 mt-2 max-w-lg leading-relaxed">
-              Tulis prompt deskripsi, lampirkan gambar referensi jika diperlukan, lalu tekan{' '}
-              <span className="font-semibold text-slate-800">Buat Gambar</span> pada panel kontrol untuk merender hasil di sini.
-            </p>
-
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2 w-full max-w-xl text-left">
-              <div className="bg-white/80 border border-blue-100 p-3">
-                <span className="text-[11px] font-medium text-slate-500">Model Aktif</span>
-                <p className="text-xs font-semibold text-slate-900 mt-0.5 truncate">
-                  {activeModelName}
-                </p>
-              </div>
-              <div className="bg-white/80 border border-blue-100 p-3">
-                <span className="text-[11px] font-medium text-slate-500">Rasio & Kualitas</span>
-                <p className="text-xs font-mono font-semibold text-blue-700 mt-0.5 truncate">
-                  {selectedAspectRatio} · {selectedResolutionLabel}
-                </p>
-              </div>
-              <div className="bg-white/80 border border-blue-100 p-3">
-                <span className="text-[11px] font-medium text-slate-500">Batas Referensi</span>
-                <p className="text-xs font-mono font-semibold text-slate-900 mt-0.5 truncate">
-                  {referenceCount} / {modelMeta.maxReferences} terpasang
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {lightboxUrl && (

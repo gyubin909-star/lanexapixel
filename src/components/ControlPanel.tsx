@@ -25,6 +25,7 @@ interface ControlPanelProps {
   onReferencesChange: React.Dispatch<React.SetStateAction<ReferenceImageItem[]>>;
   isGenerating: boolean;
   apiConfigured: boolean | null;
+  fullWidth?: boolean;
   onGenerate: () => void;
 }
 
@@ -63,6 +64,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onReferencesChange,
   isGenerating,
   apiConfigured,
+  fullWidth = false,
   onGenerate,
 }) => {
   const model = getModelConfig(form.modelId);
@@ -96,7 +98,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="glass-panel border-b lg:border-b-0 lg:border-r border-blue-200/80 p-4 sm:p-6 space-y-5 w-full"
+      className={`glass-panel border-b border-blue-200/80 p-4 sm:p-6 space-y-5 w-full ${
+        fullWidth ? 'lg:p-8 flex-1' : 'lg:border-b-0 lg:border-r'
+      }`}
     >
       {/* Panel Header */}
       <div className="flex items-center justify-between gap-3">
@@ -131,6 +135,15 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         </div>
       )}
 
+      {/* Main Controls Body */}
+      <div
+        className={
+          fullWidth
+            ? 'grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start'
+            : 'space-y-5'
+        }
+      >
+      <div className="space-y-5 min-w-0">
       {/* 1. Pemilihan Model AI */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between gap-2">
@@ -235,9 +248,17 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           disabled={isGenerating}
         />
       </div>
+      </div>
 
+      <div
+        className={
+          fullWidth
+            ? 'space-y-5 min-w-0 border-t lg:border-t-0 lg:border-l border-blue-100/80 pt-4 lg:pt-0 lg:pl-8'
+            : 'space-y-5 min-w-0'
+        }
+      >
       {/* 4. Aspek Rasio spesifik model */}
-      <div className="border-t border-blue-100/80 pt-4 space-y-3">
+      <div className={fullWidth ? 'space-y-3' : 'border-t border-blue-100/80 pt-4 space-y-3'}>
         <div className="flex items-center justify-between gap-2">
           <div>
             <label className="text-sm font-semibold text-slate-900">
@@ -255,9 +276,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         </div>
 
         <div
-          className={`grid grid-cols-3 sm:grid-cols-4 gap-1.5 ${
-            isGrokEditLockedRatio ? 'opacity-50 pointer-events-none' : ''
-          }`}
+          className={`grid gap-1.5 ${
+            fullWidth ? 'grid-cols-3 sm:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5' : 'grid-cols-3 sm:grid-cols-4'
+          } ${isGrokEditLockedRatio ? 'opacity-50 pointer-events-none' : ''}`}
         >
           {model.aspectRatios.map((ratioKey: AspectRatioValue) => {
             const meta = ALL_ASPECT_RATIOS[ratioKey];
@@ -585,6 +606,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </span>
           <span>Estimasi {estimatedCredits} kredit</span>
         </div>
+      </div>
+      </div>
       </div>
     </form>
   );

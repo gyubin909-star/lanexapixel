@@ -227,7 +227,9 @@ export default function App() {
     setStatusMessage(`Mengirim permintaan ke ${model.name}...`);
 
     if (window.innerWidth < 1024) {
-      previewSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.requestAnimationFrame(() => {
+        previewSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     }
 
     const startedAt = Date.now();
@@ -425,6 +427,9 @@ export default function App() {
       ? `${form.resolution} · ${form.quality}`
       : form.resolution;
 
+  const showPreviewPanel =
+    isGenerating || Boolean(errorMessage) || Boolean(activeRecord);
+
   return (
     <div className="min-h-screen w-full bg-studio-canvas text-slate-900 flex flex-col">
       <Header
@@ -444,8 +449,20 @@ export default function App() {
 
       <main className="flex-1 w-full flex flex-col">
         {activeView === 'studio' && (
-          <div className="flex-1 w-full grid grid-cols-1 lg:grid-cols-[420px_1fr] xl:grid-cols-[460px_1fr] items-stretch">
-            <div className="w-full min-w-0 lg:sticky lg:top-14 lg:max-h-[calc(100vh-3.5rem)] lg:overflow-y-auto">
+          <div
+            className={
+              showPreviewPanel
+                ? 'flex-1 w-full grid grid-cols-1 lg:grid-cols-[420px_1fr] xl:grid-cols-[460px_1fr] items-stretch'
+                : 'flex-1 w-full flex flex-col'
+            }
+          >
+            <div
+              className={
+                showPreviewPanel
+                  ? 'w-full min-w-0 lg:sticky lg:top-14 lg:max-h-[calc(100vh-3.5rem)] lg:overflow-y-auto'
+                  : 'w-full min-w-0 flex-1 flex flex-col'
+              }
+            >
               <ControlPanel
                 form={form}
                 onSelectModel={handleSelectModel}
@@ -454,30 +471,33 @@ export default function App() {
                 onReferencesChange={setReferences}
                 isGenerating={isGenerating}
                 apiConfigured={apiConfigured}
+                fullWidth={!showPreviewPanel}
                 onGenerate={() => void handleGenerate()}
               />
             </div>
 
-            <div ref={previewSectionRef} className="w-full min-w-0 flex">
-              <PreviewCanvas
-                activeRecord={activeRecord}
-                activeModelName={activeModel.name}
-                activeModelId={activeModel.id}
-                isGenerating={isGenerating}
-                statusMessage={statusMessage}
-                elapsedSeconds={elapsedSeconds}
-                errorMessage={errorMessage}
-                selectedAspectRatio={form.aspectRatio}
-                selectedResolutionLabel={activeResolutionLabel}
-                referenceCount={references.length}
-                maxReferences={activeModel.maxReferences}
-                onCancelGeneration={handleCancelGeneration}
-                onRetryGeneration={() => void handleGenerate()}
-                onAddImageAsReference={(url, label) =>
-                  void handleAddImageAsReference(url, label)
-                }
-              />
-            </div>
+            {showPreviewPanel && (
+              <div ref={previewSectionRef} className="w-full min-w-0 flex">
+                <PreviewCanvas
+                  activeRecord={activeRecord}
+                  activeModelName={activeModel.name}
+                  activeModelId={activeModel.id}
+                  isGenerating={isGenerating}
+                  statusMessage={statusMessage}
+                  elapsedSeconds={elapsedSeconds}
+                  errorMessage={errorMessage}
+                  selectedAspectRatio={form.aspectRatio}
+                  selectedResolutionLabel={activeResolutionLabel}
+                  referenceCount={references.length}
+                  maxReferences={activeModel.maxReferences}
+                  onCancelGeneration={handleCancelGeneration}
+                  onRetryGeneration={() => void handleGenerate()}
+                  onAddImageAsReference={(url, label) =>
+                    void handleAddImageAsReference(url, label)
+                  }
+                />
+              </div>
+            )}
           </div>
         )}
 
